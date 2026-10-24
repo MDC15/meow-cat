@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #f3ecdf;
+  --color-ink: #241c16;
+  --color-surface: #fffaf3;
+  --color-muted: #7a6d60;
+  --color-line: #e4d8c8;
+  --color-ginger: #e36a2c;
+  --color-ginger-ink: #fff7f1;
+  --color-gold: #b8893d;
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Fraunces", "Be Vietnam Pro", ui-serif, serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+}
+
+.card-ratio {
+  aspect-ratio: 63 / 88;
+}
+
+.nav-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+.mirror {
+  transform: scaleX(-1);
+}
+
+.card-rise {
+  animation: card-rise 280ms ease-out;
+}
+
+.foil {
+  position: relative;
+}
+
+.foil::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 32%,
+    color-mix(in srgb, var(--color-gold) 70%, transparent) 50%,
+    transparent 68%
+  );
+  mix-blend-mode: screen;
+  animation: foil-sweep 3.8s ease-in-out infinite;
+}
+
+.meo-pin-wrap {
+  background: transparent;
+  border: none;
+}
+
+.meo-pin {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--color-ginger);
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-ginger) 35%, transparent);
+}
+
+.meo-pin.is-focus {
+  background: var(--color-gold);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-gold) 40%, transparent);
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: var(--color-line);
+  font-family: var(--font-sans);
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes foil-sweep {
+  0%,
+  100% {
+    transform: translateX(-75%);
+  }
+  50% {
+    transform: translateX(75%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-rise,
+  .foil::after {
+    animation: none;
+  }
+}
