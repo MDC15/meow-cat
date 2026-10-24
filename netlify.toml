@@ -1,0 +1,5 @@
+[build]
+  command = "npm run build"
+  # Nitro's Netlify preset writes static assets here and SSR functions to
+  # .netlify/functions-internal (discovered automatically by Netlify).
+  publish = "dist"
