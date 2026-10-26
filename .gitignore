@@ -1,11 +1,40 @@
+# --- Dependencies ---
 node_modules/
-.project_id
-.github_repo
-.env
-.env.*
+
+# --- Build outputs ---
 dist/
+.output/
+.nitro/
 .netlify/
 .vercel/
-screenshots/
+*.tsbuildinfo
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Logs & caches ---
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.cache/
+coverage/
+
+# --- Local QA artifacts (screenshots, scripts chạy tay) ---
+screenshots/*
+!screenshots/.gitkeep
+!screenshots/app-builder-preview.json
+
+# --- Sandbox metadata ---
+.project_id
+.github_repo
 .grok/preview.log
 .grok/preview.pid
+
+# --- Editors & OS ---
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
