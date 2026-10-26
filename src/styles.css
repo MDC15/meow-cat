@@ -1,4 +1,9 @@
-@import "tailwindcss";
+/* `source(".")` pins Tailwind's automatic content detection to `src/`.
+   Without it the nitro build pass re-scans build artifacts (dist/, .vercel/,
+   .netlify/, nitro's own cache) and emits a DIFFERENT stylesheet — a
+   different hash than the client build's, so the SSR-rendered HTML then
+   404s on its own CSS. Pinning keeps both passes byte-identical. */
+@import "tailwindcss" source("./");
 
 @theme {
   --color-bg: #f3ecdf;

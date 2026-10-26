@@ -3,3 +3,9 @@ node_modules/
 .github_repo
 .env
 .env.*
+dist/
+.netlify/
+.vercel/
+screenshots/
+.grok/preview.log
+.grok/preview.pid
