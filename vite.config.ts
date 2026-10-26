@@ -142,22 +142,10 @@ function authPopupPlugin(): Plugin {
   };
 }
 
-
-
 // `0.0.0.0:8080` is the live-preview contract — don't change host/port.
 // The dev server starts once `src/router.tsx` and `src/routes/` exist — see
 // AGENTS.md § "First scaffold".
 export default defineConfig(({ command, isPreview }) => ({
-  build: {
-    // The 719 kB chunk is @tensorflow/tfjs, loaded lazily only when the
-    // vision model warms up or a capture runs — it is one npm package and
-    // cannot be split further, so the size warning is noise here.
-    // (Vendor-chunk splitting was tried via codeSplitting.groups,
-    // advancedChunks, manualChunks and per-environment config — this
-    // nitro/rolldown beta normalises the client output options and ignores
-    // them all; revisit when nitro leaves beta.)
-    chunkSizeWarningLimit: 900,
-  },
   server: {
     host: "0.0.0.0",
     port: 8080,
