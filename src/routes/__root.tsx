@@ -25,6 +25,10 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,560;9..144,700&display=swap",
       },
+      // Map tiles live on third-party hosts; warm DNS early so the first
+      // map view doesn't pay DNS on top of tile fetches.
+      { rel: "dns-prefetch", href: "https://tile.openstreetmap.org" },
+      { rel: "dns-prefetch", href: "https://tile.openstreetmap.de" },
       { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/__grok/manifest.webmanifest" },
       { rel: "apple-touch-icon", href: "/__grok/icon-180.png" },

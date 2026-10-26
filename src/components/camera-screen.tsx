@@ -44,7 +44,18 @@ export function CameraScreen({ onOpenAlbum }: { onOpenAlbum: () => void }) {
   const sample = useServerFn(sampleCatPhoto);
 
   useEffect(() => {
-    void loadModel().catch(() => undefined);
+    // Warm the vision model only after the app has settled: tfjs + mobilenet
+    // are ~300 KB gzipped plus model weights, and pulling them on mount
+    // competes with the app's own JS and fonts for bandwidth. A 3s delay
+    // still beats the user framing a shot; captures stay safe regardless —
+    // `analyzeCanvas` awaits `loadModel()` itself, so a cold model only
+    // adds its own latency to the first shot, never a failure.
+    const warm = () => {
+      const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 500));
+      idle(() => void loadModel().catch(() => undefined));
+    };
+    const timer = window.setTimeout(warm, 3000);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
