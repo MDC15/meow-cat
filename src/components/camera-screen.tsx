@@ -5,6 +5,7 @@ import { buildCatCard, sampleCatPhoto, type CardFacts } from "@/lib/cat-api.func
 import { useAlbum, type SavedCard } from "@/lib/album-store";
 import { analyzeCanvas, canvasFromDataUrl, drawContain, loadModel, suggestName, type VisionResult } from "@/lib/vision";
 import { CatCard } from "@/components/cat-card";
+import { ScratchCardReveal } from "@/components/scratch-card-reveal";
 
 type Phase = "idle" | "loading" | "reject" | "reveal";
 
@@ -89,8 +90,7 @@ export function CameraScreen({ onOpenAlbum }: { onOpenAlbum: () => void }) {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  async function mint(canvas: HTMLCanvasElement, seen: VisionResult, where: { lat: number; lng: number } | null) {
-    const facts: CardFacts = await build({
+  async function mint(canvas: HTMLCanvasElement, seen: VisionResult, where: { lat: number; lng: number } | null) {    const facts: CardFacts = await build({
       data: {
         felineLabel: seen.felineLabel,
         score: seen.score,
@@ -107,9 +107,7 @@ export function CameraScreen({ onOpenAlbum }: { onOpenAlbum: () => void }) {
     const photo = canvas.toDataURL("image/jpeg", 0.66);
     const checkLine = !seen.model
       ? "Ước lượng theo màu lông — model nhận dạng không tải được"
-      : seen.score === 0
-        ? "Bạn xác nhận đây là mèo"
-        : `MobileNet: ${seen.labelVi} · ${Math.round(seen.score * 100)}%`;
+      : `MobileNet: ${seen.labelVi} · ${Math.round(seen.score * 100)}%`;
     const card: SavedCard = {
       id: crypto.randomUUID(),
       createdAt: Date.now(),
@@ -125,13 +123,12 @@ export function CameraScreen({ onOpenAlbum }: { onOpenAlbum: () => void }) {
     setPhase("reveal");
   }
 
-  async function run(canvas: HTMLCanvasElement, forceCat = false) {
+  async function run(canvas: HTMLCanvasElement) {
     setError(null);
     setPhase("loading");
     canvasRef.current = canvas;
     try {
-      const [seenRaw, where] = await Promise.all([analyzeCanvas(canvas), locate()]);
-      const seen = forceCat ? { ...seenRaw, isCat: true, isBigCat: false, score: seenRaw.isCat ? seenRaw.score : 0 } : seenRaw;
+      const [seen, where] = await Promise.all([analyzeCanvas(canvas), locate()]);
       setVision(seen);
       if (!seen.isCat) {
         setPhase("reject");
@@ -301,30 +298,27 @@ export function CameraScreen({ onOpenAlbum }: { onOpenAlbum: () => void }) {
       )}
 
       {phase === "reject" && vision && (
-        <div className="absolute inset-0 z-20 flex flex-col bg-bg px-5 py-6 text-ink">
-          <p className="font-serif text-3xl text-balance">Không thấy mèo</p>
-          <p className="mt-2 text-sm text-pretty text-muted">
-            Bộ nhận dạng nghi đây là “{vision.topLabel}”. Chụp lại gần mặt mèo hơn, hoặc cứ tạo thẻ nếu bạn chắc.
-          </p>
-          <div className="mt-6 flex gap-3">
-            <button
-              type="button"
-              onClick={() => setPhase("idle")}
-              className="h-12 flex-1 rounded-full border border-line bg-surface"
-            >
-              Chụp lại
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const canvas = canvasRef.current;
-                if (canvas) void run(canvas, true);
-              }}
-              className="h-12 flex-1 rounded-full bg-ginger text-ginger-ink"
-            >
-              Vẫn tạo thẻ
-            </button>
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-bg px-8 text-center text-ink">
+          {canvasRef.current && (
+            <img
+              src={canvasRef.current.toDataURL("image/jpeg", 0.66)}
+              alt="Ảnh vừa chụp"
+              className="h-40 w-40 rounded-3xl object-cover shadow-md ring-2 ring-line"
+            />
+          )}
+          <div>
+            <p className="font-serif text-3xl text-balance">Không thấy mèo</p>
+            <p className="mt-2 text-sm text-pretty text-muted">
+              Bộ nhận dạng nghi đây là “{vision.topLabel}”. Hãy chụp lại gần mặt mèo hơn nhé.
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={() => setPhase("idle")}
+            className="h-12 w-full max-w-xs rounded-full bg-ginger text-ginger-ink"
+          >
+            Chụp lại
+          </button>
         </div>
       )}
 
@@ -337,9 +331,9 @@ export function CameraScreen({ onOpenAlbum }: { onOpenAlbum: () => void }) {
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto px-6 py-3">
-            <div className="mx-auto w-full max-w-xs">
+            <ScratchCardReveal key={draft.id}>
               <CatCard card={{ ...draft, name: name.trim() || draft.name }} />
-            </div>
+            </ScratchCardReveal>
           </div>
           <div className="space-y-3 px-4 pb-4">
             <label className="block text-xs text-muted">

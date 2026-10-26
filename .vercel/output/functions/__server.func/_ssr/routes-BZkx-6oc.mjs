@@ -1171,7 +1171,7 @@ function MapScreen({ focusId, pinning, onFocus, onPinned }) {
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "font-serif text-lg leading-tight",
-							children: "Bản đồ ổ mèo"
+							children: "Bản đồ mèo"
 						}),
 						/* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", {
 							className: "text-xs text-muted",

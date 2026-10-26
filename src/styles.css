@@ -19,6 +19,17 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Hide every scrollbar while keeping scrolling (wheel / trackpad / touch).
+     WebKit, Firefox and the legacy Edge syntax each need their own rule. */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
   body {
     margin: 0;
     background: var(--color-bg);
@@ -46,6 +57,20 @@
 
 .nav-safe {
   padding-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+/* Full-height app shell. `100dvh` is Safari 15.4+; older Safari (and some
+   in-app WebViews) ignore it entirely, collapsing the shell to content
+   height — the absolutely-positioned map tab then renders 0px tall. So the
+   viewport-unit fallback comes first and dvh only overrides where supported. */
+.app-frame {
+  height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  .app-frame {
+    height: 100dvh;
+  }
 }
 
 .mirror {
@@ -80,19 +105,42 @@
   border: none;
 }
 
+/* Photo bubble pin — Locket-style: the card's photo in a white-ringed
+   circle standing on the map. */
 .meo-pin {
   display: block;
-  width: 18px;
-  height: 18px;
+  width: 100%;
+  height: 100%;
   border-radius: 999px;
-  background: var(--color-ginger);
-  border: 2px solid var(--color-surface);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-ginger) 35%, transparent);
+  background: var(--color-surface);
+  border: 2.5px solid var(--color-surface);
+  box-shadow:
+    0 2px 6px rgb(36 28 22 / 35%),
+    0 0 0 1px rgb(36 28 22 / 12%);
+  overflow: hidden;
+  transition: transform 150ms ease-out, box-shadow 150ms ease-out;
+}
+
+.meo-pin img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 999px;
 }
 
 .meo-pin.is-focus {
-  background: var(--color-gold);
-  box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-gold) 40%, transparent);
+  transform: scale(1.25);
+  border-color: var(--color-gold);
+  box-shadow:
+    0 3px 10px rgb(36 28 22 / 40%),
+    0 0 0 5px color-mix(in srgb, var(--color-gold) 40%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meo-pin {
+    transition: none;
+  }
 }
 
 .leaflet-container {

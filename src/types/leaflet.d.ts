@@ -6,6 +6,7 @@ declare module "leaflet" {
     off(event: "click"): Map;
     fitBounds(bounds: unknown, options?: { maxZoom?: number; animate?: boolean }): Map;
     invalidateSize(): Map;
+    removeLayer(layer: unknown): Map;
   }
 
   export interface Marker {
@@ -14,9 +15,13 @@ declare module "leaflet" {
     remove(): void;
   }
 
-  export interface TileLayer {
+  export interface TileLayerEvented {
+    on(event: "tileload", handler: () => void): TileLayer;
+    on(event: "tileerror", handler: () => void): TileLayer;
     addTo(map: Map): TileLayer;
   }
+
+  export interface TileLayer extends TileLayerEvented {}
 
   export interface LeafletApi {
     map(el: HTMLElement, options?: Record<string, unknown>): Map;

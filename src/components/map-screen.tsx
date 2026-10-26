@@ -4,6 +4,7 @@ import { MapPin } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 import type { LeafletApi, Map as LeafletMap, Marker } from "leaflet";
 import { lookupPlace } from "@/lib/cat-api.functions";
+import { MEO_PIN_ANCHOR, MEO_PIN_SIZE, meoPinHtml } from "@/lib/map-pin";
 import { useAlbum } from "@/lib/album-store";
 
 function resolveLeaflet(mod: unknown): LeafletApi {
@@ -44,15 +45,45 @@ export function MapScreen({
       const api = resolveLeaflet(await import("leaflet"));
       if (dead || !hostRef.current) return;
       const map = api.map(host, { zoomControl: true, attributionControl: true }).setView([16.05, 107.8], 5);
-      api
+      // OSM first (primary). If its tiles are unreachable — DNS failure, a
+      // privacy proxy (iCloud Private Relay on Safari), or an OSM outage —
+      // the map would be a blank rectangle with no way to recover, so after
+      // a burst of errors before ANY tile succeeds we swap providers.
+      let layer = api
         .tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         })
         .addTo(map);
+      let tileFailed = 0;
+      let tileWorked = false;
+      let swapped = false;
+      layer.on("tileload", () => {
+        tileWorked = true;
+      });
+      layer.on("tileerror", () => {
+        if (tileWorked || swapped) return;
+        tileFailed += 1;
+        if (tileFailed < 4) return;
+        swapped = true;
+        map.removeLayer(layer);
+        // OSM Germany's mirror: same OpenStreetMap data, separate hosting
+        // and DNS, no key required (Carto's basemaps now demand an API key).
+        layer = api
+          .tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          })
+          .addTo(map);
+      });
       mapRef.current = map;
       apiRef.current = api;
       setReady(true);
+      // Re-measure on the next frames too: Safari/iOS can settle the flex
+      // layout (fonts, safe-area insets) after mount, and a map sized while
+      // the host was still 0px keeps blank tiles until re-measured.
+      map.invalidateSize();
+      requestAnimationFrame(() => map.invalidateSize());
       window.setTimeout(() => map.invalidateSize(), 180);
     })();
     return () => {
@@ -78,9 +109,9 @@ export function MapScreen({
         .marker([card.lat, card.lng], {
           icon: api.divIcon({
             className: "meo-pin-wrap",
-            html: `<span class="meo-pin${focused ? " is-focus" : ""}"></span>`,
-            iconSize: [22, 22],
-            iconAnchor: [11, 11],
+            html: meoPinHtml(card.photo, focused),
+            iconSize: [MEO_PIN_SIZE, MEO_PIN_SIZE],
+            iconAnchor: MEO_PIN_ANCHOR,
           }),
         })
         .addTo(map);
@@ -116,10 +147,13 @@ export function MapScreen({
 
   return (
     <section className="relative h-full">
-      <div ref={hostRef} className="absolute inset-0" />
+      {/* z-0 boxes every leaflet pane (z-index 200–1000) inside this host's
+          own stacking context — without it the tiles paint OVER the z-10
+          overlays below. */}
+      <div ref={hostRef} className="absolute left-0 top-0 z-0 h-full w-full" />
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 p-3">
         <div className="pointer-events-auto rounded-2xl bg-surface/95 px-3 py-2 shadow-md">
-          <p className="font-serif text-lg leading-tight">Bản đồ ổ mèo</p>
+          <p className="font-serif text-lg leading-tight">Bản đồ mèo</p>
           <p className="text-xs text-muted">
             {pinnedCount === 0 ? "Chưa có thẻ nào được ghim" : `${pinnedCount} vị trí · OpenStreetMap`}
           </p>

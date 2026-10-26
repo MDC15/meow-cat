@@ -21,7 +21,7 @@ function Home() {
   }, []);
 
   return (
-    <main className="mx-auto flex h-dvh max-w-lg flex-col overflow-hidden bg-bg text-ink">
+    <main className="app-frame mx-auto flex max-w-lg flex-col overflow-hidden bg-bg text-ink">
       <div className="min-h-0 flex-1">
         {tab === "camera" && <CameraScreen onOpenAlbum={() => setTab("album")} />}
         {tab === "album" && (

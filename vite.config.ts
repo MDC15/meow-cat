@@ -150,6 +150,10 @@ export default defineConfig(({ command, isPreview }) => ({
     host: "0.0.0.0",
     port: 8080,
     strictPort: true,
+    // The workspace can sit on a network mount (WSL /mnt/d) where inotify
+    // events never arrive — the watcher then serves stale modules after
+    // edits. Polling makes HMR (and edit-then-verify) reliable there.
+    watch: { usePolling: true, interval: 800 },
   },
   preview: {
     host: "127.0.0.1",

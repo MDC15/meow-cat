@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Cat, MapPin, Trash2 } from "lucide-react";
+import { ArrowLeft, Cat, MapPin, Trash2 } from "lucide-react";
 import { RARITY_VI } from "@/lib/breed-match";
 import { useAlbum } from "@/lib/album-store";
 import { CatCard } from "@/components/cat-card";
@@ -25,11 +25,16 @@ export function AlbumScreen({
     return (
       <section className="flex h-full flex-col bg-bg">
         <header className="flex items-center justify-between px-4 pt-4">
-          <button type="button" onClick={() => onFocus(null)} className="h-11 text-sm text-muted">
-            Album
+          <button
+            type="button"
+            onClick={() => onFocus(null)}
+            aria-label="Về album"
+            className="flex size-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface"
+          >
+            <ArrowLeft className="size-5" aria-hidden="true" />
           </button>
           <p className="font-serif text-xl">{focus.name}</p>
-          <span className="w-12" />
+          <span className="size-11" />
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-3">
           <div className="mx-auto w-full max-w-xs">
