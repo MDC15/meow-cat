@@ -29,6 +29,7 @@ screenshots/*
 # --- Sandbox metadata ---
 .project_id
 .github_repo
+.grok/
 .grok/preview.log
 .grok/preview.pid
 
