@@ -21,7 +21,7 @@ declare module "leaflet" {
     addTo(map: Map): TileLayer;
   }
 
-  export interface TileLayer extends TileLayerEvented {}
+  export type TileLayer = TileLayerEvented;
 
   export interface LeafletApi {
     map(el: HTMLElement, options?: Record<string, unknown>): Map;
